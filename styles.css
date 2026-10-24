@@ -1,0 +1,27 @@
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;color:#1a1a1a;background:#fff}
+[data-theme="dark"] body,body.dark{background:#141414;color:#eee}
+header,main,footer{max-width:720px;margin:0 auto;padding:16px}
+h1{margin:0 0 4px;font-size:2rem}
+.tagline{font-size:1.1rem;font-weight:600;margin:0 0 12px}
+.honest,.hint{font-size:.92rem}
+form{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input,select,button{width:100%;padding:10px;font-size:1rem;border:1px solid #888;border-radius:8px;background:inherit;color:inherit}
+button{cursor:pointer;font-weight:600;background:#1a5c3a;color:#fff;border-color:#1a5c3a}
+button.secondary{background:transparent;color:inherit;border-color:#888}
+ol{padding-left:20px}
+li.card{border:1px solid #ccc;border-radius:10px;padding:12px;margin:10px 0;list-style:none}
+li.card{margin-left:-20px}
+.name{font-size:1.25rem;font-weight:700;overflow-wrap:anywhere}
+.score{font-weight:600}
+.badge{display:inline-block;border:1px solid #888;border-radius:999px;padding:2px 8px;margin:2px;font-size:.85rem}
+.badge.ok{border-color:#1a7a3a}
+.badge.taken{border-color:#a33}
+.badge.unchecked{border-color:#888}
+.breakdown{font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.mini{font-size:.9rem}
+a{color:#2a6db0;overflow-wrap:anywhere}
+ul{padding-left:20px}
+@media(max-width:400px){.row{grid-template-columns:1fr}header,main,footer{padding:12px}h1{font-size:1.6rem}}

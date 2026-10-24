@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitNym — searchable repo names, with availability checks</title>
+<meta name="description" content="Generate 10 repo names from a description and check npm, PyPI and GitHub account availability. Scores are heuristics, not proof.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>GitNym</h1>
+  <p class="tagline">Names that are searchable — and actually available on npm, PyPI and domains.</p>
+  <p class="honest">Honest limits, read this first: GitHub repo names are unique <strong>per owner only</strong>, so this tool never claims a GitHub repo name is globally unique. Scores below are transparent heuristics, not proof and not measured user data. Availability badges are per-source results, or “unchecked” when a check fails.</p>
+  <button id="themeBtn" type="button" aria-label="Toggle dark mode">Dark mode: auto</button>
+</header>
+<main>
+  <form id="form">
+    <label for="desc">One-line description</label>
+    <input id="desc" name="desc" type="text" maxlength="500" placeholder="e.g. ai notes app" autocomplete="off" required>
+    <div class="row">
+      <div>
+        <label for="vibe">Vibe</label>
+        <select id="vibe" name="vibe">
+          <option value="brandable">Brandable</option>
+          <option value="playful">Playful</option>
+          <option value="serious">Serious</option>
+          <option value="hacker">Hacker</option>
+          <option value="minimal">Minimal</option>
+          <option value="cli">CLI</option>
+          <option value="ai">AI</option>
+        </select>
+      </div>
+      <div>
+        <label for="maxLen">Max length</label>
+        <select id="maxLen" name="maxLen">
+          <option value="12">12</option>
+          <option value="16" selected>16</option>
+          <option value="20">20</option>
+          <option value="24">24</option>
+        </select>
+      </div>
+    </div>
+    <label for="include">Include keywords (comma separated, optional)</label>
+    <input id="include" name="include" type="text" maxlength="200" placeholder="e.g. note, fast">
+    <label for="avoid">Avoid keywords (comma separated, optional)</label>
+    <input id="avoid" name="avoid" type="text" maxlength="200" placeholder="e.g. ai, bot">
+    <button id="go" type="submit">Generate 10 names</button>
+    <p class="hint">Press Enter in the description box to generate. No key needed. Scoring works offline; live badges degrade to “unchecked” offline or on rate limits.</p>
+  </form>
+
+  <section aria-labelledby="weightsH">
+    <h2 id="weightsH">How scores are calculated (published weights)</h2>
+    <p>Length 25% · Pronounceability 25% · Typo-resistance 20% · Searchability 15% · Memorability 15% <strong>(SUBJECTIVE — a heuristic, not measured recall)</strong>. Click a name's breakdown to see each part. Searchability only warns about similarity to a small popular-names list — it never marks a GitHub repo name “Taken”.</p>
+  </section>
+
+  <p id="status" role="status" aria-live="polite"></p>
+  <p id="checksRemaining" aria-live="polite"></p>
+
+  <section aria-labelledby="favH">
+    <h2 id="favH">Favorites (saved in this browser only)</h2>
+    <ul id="favorites"></ul>
+  </section>
+
+  <section aria-labelledby="resultsH">
+    <h2 id="resultsH">Top 10 names</h2>
+    <ol id="results"></ol>
+  </section>
+
+  <section aria-labelledby="limitsH">
+    <h2 id="limitsH">What this does NOT claim</h2>
+    <ul>
+      <li>It does not claim a GitHub repo name is globally unique — it cannot be, per owner.</li>
+      <li>It does not claim scores predict success, memorability in real users, or virality.</li>
+      <li>Domain results, when shown, are “hint only — resolves does not mean available”. A resolving domain can still be owned, parked, or unavailable.</li>
+      <li>Domain check is attempted via DNS-over-HTTPS only; if that request fails in your browser, the domain badge becomes “unchecked” and the check is cut for that session, not guessed.</li>
+      <li>GitHub badge checks whether a GitHub <em>account</em> (user/org) with that exact name exists. That is not a repo-uniqueness check.</li>
+      <li>No BYOK / AI mode in v1. Generation is deterministic: the same inputs give the same top 10 in the same order.</li>
+    </ul>
+  </section>
+</main>
+<footer>
+  <p>GitNym v4, local build. No backend, no secrets, no key required. Name checked 2026-10-24: 0 exact GitHub matches, npm/PyPI free — trademark/confusion check vs Nym still open, not claimed cleared.</p>
+</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>
