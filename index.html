@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GitNym — searchable repo names, with availability checks</title>
 <meta name="description" content="Generate 10 repo names from a description and check npm, PyPI and GitHub account availability. Scores are heuristics, not proof.">
-<link rel="stylesheet" href="styles.css">
+<!-- Versioned subresources: see TrendGap index.html note — bump ?v= on every
+     deploy that changes app.js/styles.css so HTML and JS can never mismatch. -->
+<link rel="stylesheet" href="styles.css?v=20261024-2">
 </head>
 <body>
 <header>
@@ -90,6 +92,6 @@
 <footer>
   <p>GitNym v4. Live at hydope.github.io/GitNym. No backend, no secrets, no key required. Name checked 2026-10-24: 0 exact GitHub matches, npm/PyPI free — trademark/confusion check vs Nym still open, not claimed cleared.</p>
 </footer>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=20261024-2"></script>
 </body>
 </html>
