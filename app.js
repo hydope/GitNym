@@ -6,6 +6,25 @@ const TTL = 24 * 60 * 60 * 1000;
 let wordlists = null;
 let favorites = new Set(JSON.parse(localStorage.getItem("gitnym-favorites") || "[]"));
 let checksRemaining = 0;
+let lastScored = [];
+
+// Custom character limit: preset select, or "Custom…" + a number input (4–32).
+// Returns { maxLength, clamped } where clamped is true if the user's number
+// was outside 4–32 and had to be clamped. The engine also clamps, but the
+// UI reports the clamp explicitly instead of silently changing the input.
+function effectiveMaxLength() {
+  const preset = $("maxLen").value;
+  if (preset !== "custom") return { maxLength: Number(preset), clamped: false };
+  const raw = Number($("customMax").value);
+  if (!Number.isFinite(raw)) return { maxLength: 16, clamped: false, missing: true };
+  const clamped = Math.max(4, Math.min(32, Math.floor(raw)));
+  return { maxLength: clamped, clamped: clamped !== raw };
+}
+function syncCustomInput() {
+  const isCustom = $("maxLen").value === "custom";
+  $("customMax").disabled = !isCustom;
+  if (isCustom && !$("customMax").value) $("customMax").value = "10";
+}
 
 function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 function loadCache() {
@@ -107,7 +126,7 @@ function renderResults(scored) {
     const li = document.createElement("li");
     li.className = "card";
     const fav = favorites.has(s.name) ? "★ Favorited" : "☆ Favorite";
-    li.innerHTML = `<div class="name">${s.name}</div>
+    li.innerHTML = `<div class="name">${s.name} <span class="small">(${s.name.length} chars)</span></div>
       <div class="score">Score ${s.total}/100</div>
       <div class="breakdown">Length ${s.parts.length} (25%) · Pronounceability ${s.parts.pronounceability} (25%) · Typo-resistance ${s.parts.typoResistance} (20%) · Searchability ${s.parts.searchability} (15%) · Memorability ${s.parts.memorability} (15%, SUBJECTIVE)</div>
       <div class="badges" aria-label="Availability checks for ${s.name}">Checking…</div>
@@ -175,11 +194,17 @@ async function generate(e) {
   if (e) e.preventDefault();
   const desc = $("desc").value.trim().slice(0, 500);
   if (!desc) { $("status").textContent = "Type a one-line description first."; $("results").innerHTML = ""; return; }
-  const opts = { vibe: $("vibe").value, include: $("include").value, avoid: $("avoid").value, maxLength: Number($("maxLen").value) };
+  const eff = effectiveMaxLength();
+  if (eff.missing) { $("status").textContent = "Choose a custom max length (4–32) or pick a preset."; return; }
+  const opts = { vibe: $("vibe").value, include: $("include").value, avoid: $("avoid").value, maxLength: eff.maxLength };
   writeParams({ desc, ...opts });
   const wl = await loadWordlists();
   const scored = generateNames(desc, opts, wl);
-  $("status").textContent = `Generated ${scored.length} names for “${desc}”. Same inputs always give the same order.`;
+  lastScored = scored;
+  const overLimit = scored.filter((s) => s.name.length > eff.maxLength);
+  $("status").textContent = `Generated ${scored.length} names for “${desc}”, all ≤ ${eff.maxLength} chars. Same inputs always give the same order.` +
+    (eff.clamped ? ` Custom limit was clamped to ${eff.maxLength} (allowed range 4–32).` : "") +
+    (overLimit.length ? ` WARNING: ${overLimit.length} names exceed the limit — this should not happen; please report it.` : "");
   await runChecks(scored);
 }
 
@@ -200,20 +225,41 @@ function initTheme() {
 }
 
 $("form").addEventListener("submit", generate);
+$("maxLen").addEventListener("change", syncCustomInput);
+$("copyAll").addEventListener("click", () => {
+  if (!lastScored.length) { $("status").textContent = "Generate names first, then Copy all will copy them."; return; }
+  const text = lastScored.map((s) => `${s.name} — ${s.total}/100`).join("\n");
+  navigator.clipboard?.writeText(text).then(() => { $("status").textContent = `Copied ${lastScored.length} names.`; }).catch(() => { $("status").textContent = "Copy failed — your browser blocked clipboard access."; });
+});
+$("clearFavs").addEventListener("click", () => {
+  favorites.clear();
+  localStorage.setItem("gitnym-favorites", "[]");
+  renderFavorites();
+  document.querySelectorAll(".fav").forEach((b) => { b.textContent = "☆ Favorite"; });
+});
 renderFavorites();
 initTheme();
+syncCustomInput();
 
 // Shareable URL state: auto-generate on load if a description is in the URL.
+// A max value outside the presets restores as Custom + that number.
 const params = readParams();
 if (params.desc) {
   $("desc").value = params.desc.slice(0, 500);
   $("vibe").value = params.vibe;
   $("include").value = params.include;
   $("avoid").value = params.avoid;
-  $("maxLen").value = params.maxLength;
+  if (["12", "16", "20", "24"].includes(params.maxLength)) {
+    $("maxLen").value = params.maxLength;
+  } else {
+    $("maxLen").value = "custom";
+    $("customMax").value = params.maxLength;
+  }
+  syncCustomInput();
   loadWordlists().then((wl) => {
     const scored = generateNames(params.desc, { vibe: params.vibe, include: params.include, avoid: params.avoid, maxLength: Number(params.maxLength) }, wl);
-    $("status").textContent = `Loaded from shared link: ${scored.length} names.`;
+    lastScored = scored;
+    $("status").textContent = `Loaded from shared link: ${scored.length} names, all ≤ ${params.maxLength} chars.`;
     runChecks(scored);
   });
 }

@@ -38,7 +38,13 @@
           <option value="16" selected>16</option>
           <option value="20">20</option>
           <option value="24">24</option>
+          <option value="custom">Custom…</option>
         </select>
+      </div>
+      <div>
+        <label for="customMax">Custom max length (4–32 characters)</label>
+        <input id="customMax" name="customMax" type="number" min="4" max="32" step="1" placeholder="e.g. 10" inputmode="numeric" disabled>
+        <p class="hint">Choose “Custom…” above, then type any limit from 4 to 32. A value outside that range is clamped to 4–32 and the clamp is shown in the status line. No name longer than your limit is generated.</p>
       </div>
     </div>
     <label for="include">Include keywords (comma separated, optional)</label>
@@ -60,10 +66,12 @@
   <section aria-labelledby="favH">
     <h2 id="favH">Favorites (saved in this browser only)</h2>
     <ul id="favorites"></ul>
+    <button id="clearFavs" type="button" class="secondary">Clear favorites</button>
   </section>
 
   <section aria-labelledby="resultsH">
     <h2 id="resultsH">Top 10 names</h2>
+    <button id="copyAll" type="button" class="secondary">Copy all names</button>
     <ol id="results"></ol>
   </section>
 
@@ -80,7 +88,7 @@
   </section>
 </main>
 <footer>
-  <p>GitNym v4, local build. No backend, no secrets, no key required. Name checked 2026-10-24: 0 exact GitHub matches, npm/PyPI free — trademark/confusion check vs Nym still open, not claimed cleared.</p>
+  <p>GitNym v4. Live at hydope.github.io/GitNym. No backend, no secrets, no key required. Name checked 2026-10-24: 0 exact GitHub matches, npm/PyPI free — trademark/confusion check vs Nym still open, not claimed cleared.</p>
 </footer>
 <script type="module" src="app.js"></script>
 </body>
